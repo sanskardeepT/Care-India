@@ -1,32 +1,38 @@
-# Care India – AI Health Desk
 
-A modern AI-powered healthcare assistance web application built with React + Vite.
-
-This platform provides:
-
-- 🩺 AI Symptom Analysis (Dr.AI)
-- 💊 Generic Medicine Finder
-- 🏥 Specialist Recommendation
-- 📊 Health Dashboard
-- 🔐 Secure Environment Configuration
+- Modular service-based AI calls
+- Environment-secured API key
+- Production-ready deployment
 
 ---
 
-## 🚀 Tech Stack
+## 🛠 Tech Stack
 
-- React
+### Frontend
+- React (Hooks + Functional Components)
 - TypeScript
 - Vite
 - Tailwind CSS
-- AI-powered health response engine
+- Component-Based Architecture
+
+### Tooling
+- Node.js
+- npm
+- Git
+- Vercel Deployment
 
 ---
 
-## 📦 Installation
+## 📁 Project Structure
 
-### Prerequisites
-
-- Node.js (v18 or higher recommended)
-
----
-
+Care-India/
+│
+├── components/
+├── pages/
+├── services/
+│ └── geminiService.ts
+├── api/
+├── App.tsx
+├── index.tsx
+├── vite.config.ts
+├── package.json
+└── tsconfig.json
