@@ -1,38 +1,90 @@
+<div align="center">
 
-- Modular service-based AI calls
-- Environment-secured API key
-- Production-ready deployment
+# 🏥 Care India – AI Health Intelligence Platform
+
+AI-powered healthcare assistance web application built using React, TypeScript, and Generative AI.
+
+</div>
 
 ---
 
-## 🛠 Tech Stack
+## 🚀 Overview
+
+Care India is a modern AI-based health assistance platform that provides:
+
+- 🩺 AI Symptom Analysis (Dr.AI)
+- 💊 Generic Medicine Alternatives Finder
+- 🏥 Specialist Recommendation
+- 📊 Health Dashboard Interface
+- 🔐 Secure API-based AI Integration
+
+The application is designed with modular architecture and production-ready deployment support.
+
+---
+
+## 🛠️ Tech Stack
 
 ### Frontend
-- React (Hooks + Functional Components)
+- React (Functional Components + Hooks)
 - TypeScript
 - Vite
 - Tailwind CSS
-- Component-Based Architecture
+- Modern ES Modules
 
-### Tooling
+### AI Integration
+- Generative AI Model: `gemini-3-flash-preview`
+- Structured Prompt Engineering
+- JSON Schema Enforcement (for medicine lookup)
+
+### Tooling & Deployment
 - Node.js
 - npm
 - Git
-- Vercel Deployment
+- Vercel (Production Deployment)
 
 ---
 
-## 📁 Project Structure
+## 🧠 Core Features
 
-Care-India/
-│
-├── components/
-├── pages/
-├── services/
-│ └── geminiService.ts
-├── api/
-├── App.tsx
-├── index.tsx
-├── vite.config.ts
-├── package.json
-└── tsconfig.json
+### 1️⃣ Dr.AI – Symptom Checker
+
+Provides:
+- Brief health summary
+- 3 possible causes
+- 2 recommended steps
+- Standard medical disclaimer
+
+---
+
+### 2️⃣ Generic Medicine Finder
+
+Returns:
+- Brand confirmation
+- 2–3 generic alternatives
+- Usage description
+- Approximate price (INR)
+
+Structured AI output using JSON schema validation.
+
+---
+
+### 3️⃣ Specialist Recommendation
+
+Analyzes symptoms and suggests the most relevant medical specialist category.
+
+---
+React Frontend
+↓
+AI Service Layer (geminiService.ts)
+↓
+Generative AI Model API
+
+
+Environment variables securely manage API access.
+
+ 📁 Project Structure
+
+
+
+## 🏗️ Architecture
+
