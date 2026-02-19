@@ -1,0 +1,7 @@
+{
+  "name": "Care. - Your Personal Health Desk",
+  "description": "A comprehensive healthcare dashboard featuring Dr.AI for symptom checking, an AI pharmacy for finding generic medicines, and a secure health vault for medical records.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
