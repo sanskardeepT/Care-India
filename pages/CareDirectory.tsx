@@ -2,8 +2,7 @@
 import React, { useState } from 'react';
 import { Hospital } from '../types';
 
-const CareDirectory: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'Hospitals' | 'Doctors'>('Hospitals');
+
 
   const hospitals: Hospital[] = [
     { id: '1', name: 'Lilavati Hospital', location: 'Bandra, Mumbai', imageUrl: 'https://picsum.photos/id/1031/400/250', type: 'Hospital' },

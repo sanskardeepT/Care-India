@@ -1,12 +1,12 @@
 
-import React, { useState } from 'react';
+
 import { User } from '../types';
 
 interface LoginProps {
   onLogin: (user: User) => void;
 }
 
-const Login: React.FC<LoginProps> = ({ onLogin }) => {
+
   const [phoneNumber, setPhoneNumber] = useState('');
 
   const handleGuestLogin = () => {
