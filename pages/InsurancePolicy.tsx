@@ -1,7 +1,16 @@
-
 import React from 'react';
 
 const InsurancePolicy: React.FC = () => {
+  const handleDownload = () => {
+    const blob = new Blob(['Care India E-Card\nPolicy: SHA/2024/9912\nCoverage: 15,00,000'], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'care-india-e-card.txt';
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-8 animate-fadeIn">
       <div>
@@ -23,7 +32,7 @@ const InsurancePolicy: React.FC = () => {
                <h3 className="text-xl font-bold tracking-tight">₹ 15,00,000</h3>
              </div>
           </div>
-          
+
           <div className="flex-1 space-y-4">
              <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
@@ -35,13 +44,13 @@ const InsurancePolicy: React.FC = () => {
                    <p className="text-sm font-bold text-gray-800">14 Dec 2025</p>
                 </div>
              </div>
-             <button className="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold text-sm tracking-wide shadow-lg hover:bg-gray-800 transition-all active:scale-[0.98]">
+             <button onClick={handleDownload} className="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold text-sm tracking-wide shadow-lg hover:bg-gray-800 transition-all active:scale-[0.98]">
                DOWNLOAD E-CARD
              </button>
           </div>
         </div>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-3xl border border-gray-100">
           <h3 className="font-bold text-gray-800 mb-4 text-sm">Recent Claims</h3>
@@ -58,8 +67,8 @@ const InsurancePolicy: React.FC = () => {
         <div className="bg-white p-6 rounded-3xl border border-gray-100">
           <h3 className="font-bold text-gray-800 mb-4 text-sm">Quick Links</h3>
           <div className="grid grid-cols-2 gap-3">
-            <button className="p-3 bg-blue-50 text-[#0066FF] rounded-xl text-[10px] font-bold uppercase tracking-wider">Raise Claim</button>
-            <button className="p-3 bg-gray-50 text-gray-500 rounded-xl text-[10px] font-bold uppercase tracking-wider">TPA List</button>
+            <button onClick={() => { window.location.href = 'mailto:support@care-india.com?subject=Raise%20Claim'; }} className="p-3 bg-blue-50 text-[#0066FF] rounded-xl text-[10px] font-bold uppercase tracking-wider">Raise Claim</button>
+            <button onClick={() => window.open('https://www.starhealth.in/network-hospitals', '_blank', 'noopener,noreferrer')} className="p-3 bg-gray-50 text-gray-500 rounded-xl text-[10px] font-bold uppercase tracking-wider">TPA List</button>
           </div>
         </div>
       </div>

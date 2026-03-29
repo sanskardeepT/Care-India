@@ -6,17 +6,21 @@ const AIPharmacy: React.FC = () => {
   const [search, setSearch] = useState('');
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!search.trim()) return;
 
     setLoading(true);
+    setMessage('');
     try {
       const res = await findGenericMedicine(search);
       setResult(res);
     } catch (err) {
       console.error(err);
+      setResult(null);
+      setMessage('Unable to fetch medicine suggestions right now.');
     } finally {
       setLoading(false);
     }
@@ -75,6 +79,12 @@ const AIPharmacy: React.FC = () => {
           </div>
         </div>
       )}
+
+      {message ? (
+        <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
+          <p className="text-sm text-gray-500">{message}</p>
+        </div>
+      ) : null}
 
       {/* Subscriptions */}
       <div>

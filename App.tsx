@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthContextProvider, useAuth } from './context/AuthContext';
+import { AuthContextProvider, useAuth } from './src/context/AuthContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import CareDirectory from './pages/CareDirectory';
@@ -11,10 +10,9 @@ import MyHealth from './pages/MyHealth';
 import InsurancePolicy from './pages/InsurancePolicy';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
-import { User } from './types';
 
 const ProtectedRoutes = () => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, logout } = useAuth();
   
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
@@ -33,7 +31,7 @@ const ProtectedRoutes = () => {
               <Route path="/pharmacy" element={<AIPharmacy />} />
               <Route path="/vault" element={<HealthVault user={user} />} />
               <Route path="/insurance" element={<InsurancePolicy />} />
-              <Route path="/profile" element={<MyHealth user={user} />} />
+              <Route path="/profile" element={<MyHealth user={user} onLogout={logout} />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
             <footer className="mt-12 text-center text-xs text-gray-400 py-6 border-t border-gray-100">
@@ -71,4 +69,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-

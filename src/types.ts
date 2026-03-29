@@ -31,7 +31,6 @@ export interface Subscription {
   price: number;
 }
 
-// Backend types
 export interface Appointment {
   id: number;
   user_id: number | null;
@@ -61,4 +60,3 @@ export interface HealthRecord {
   specialist_suggested?: string;
   created_at: string;
 }
-

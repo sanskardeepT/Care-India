@@ -7,96 +7,129 @@ import { authMiddleware } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// POST /api/auth/register
+const sanitizeEmail = (email) => String(email || '').trim().toLowerCase();
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, phone, date_of_birth, gender, blood_group } = req.body;
+    const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({ error: 'Name, email, and password required' });
+      return res.status(400).json({ success: false, error: 'Name, email and password are required' });
+    }
+
+    const normalizedEmail = sanitizeEmail(email);
+
+    if (!isValidEmail(normalizedEmail)) {
+      return res.status(400).json({ success: false, error: 'Enter a valid email address' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+
     const [result] = await pool.execute(
-      'INSERT INTO users (name, email, password, phone, date_of_birth, gender, blood_group) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [name, email, hashedPassword, phone, date_of_birth, gender, blood_group]
+      'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
+      [String(name).trim(), normalizedEmail, hashedPassword],
     );
 
     const token = jwt.sign({ id: result.insertId }, process.env.JWT_SECRET, { expiresIn: '7d' });
-    
-    const [userRows] = await pool.execute('SELECT id, name, email, phone, date_of_birth, gender, blood_group, created_at FROM users WHERE id = ?', [result.insertId]);
-    
-    res.json({
+
+    return res.status(201).json({
+      success: true,
+      message: 'Registered successfully',
       token,
-      user: userRows[0]
+      user: {
+        id: result.insertId,
+        name: String(name).trim(),
+        email: normalizedEmail,
+        isGuest: false,
+      },
     });
   } catch (error) {
     if (error.code === 'ER_DUP_ENTRY') {
-      return res.status(400).json({ error: 'Email already exists' });
+      return res.status(409).json({ success: false, error: 'Email already exists' });
     }
-    res.status(500).json({ error: 'Registration failed' });
+
+    return res.status(500).json({ success: false, error: 'Registration failed' });
   }
 });
 
-// POST /api/auth/login
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password required' });
+      return res.status(400).json({ success: false, error: 'Email and password are required' });
     }
 
-    const [rows] = await pool.execute('SELECT * FROM users WHERE email = ? AND deleted_at IS NULL', [email]);
+    if (!isValidEmail(sanitizeEmail(email))) {
+      return res.status(400).json({ success: false, error: 'Enter a valid email address' });
+    }
+
+    const [rows] = await pool.execute('SELECT id, name, email, password FROM users WHERE email = ?', [sanitizeEmail(email)]);
     const user = rows[0];
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+    if (!user) {
+      return res.status(401).json({ success: false, error: 'Invalid email or password' });
+    }
+
+    const passwordMatches = await bcrypt.compare(String(password), user.password);
+
+    if (!passwordMatches) {
+      return res.status(401).json({ success: false, error: 'Invalid email or password' });
     }
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-    
-    const { password: _, ...userWithoutPassword } = user;
-    
-    res.json({
+
+    return res.json({
+      success: true,
+      message: 'Login successful',
       token,
-      user: userWithoutPassword
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        isGuest: false,
+      },
     });
-  } catch (error) {
-    res.status(500).json({ error: 'Login failed' });
+  } catch {
+    return res.status(500).json({ success: false, error: 'Login failed' });
   }
 });
 
-// POST /api/auth/guest
-router.post('/guest', async (req, res) => {
+const handleGuest = async (_req, res) => {
   try {
     const sessionToken = crypto.randomUUID();
-    
-    await pool.execute(
-      'INSERT INTO guest_sessions (session_token) VALUES (?)',
-      [sessionToken]
-    );
-    
-    res.json({
+
+    await pool.execute('INSERT INTO guest_sessions (session_token) VALUES (?)', [sessionToken]);
+
+    return res.json({
+      success: true,
       token: sessionToken,
       user: {
         id: null,
         name: 'Sanskardeep',
         email: 'guest@care-india.com',
-        isGuest: true
-      }
+        isGuest: true,
+      },
     });
-  } catch (error) {
-    res.status(500).json({ error: 'Guest login failed' });
+  } catch {
+    return res.status(500).json({ success: false, error: 'Guest login failed' });
   }
-});
+};
 
-// GET /api/auth/me (protected)
+router.get('/guest', handleGuest);
+router.post('/guest', handleGuest);
+
 router.get('/me', authMiddleware, async (req, res) => {
-  const { password, ...userWithoutPassword } = req.user;
-  res.json({ user: userWithoutPassword });
+  res.json({
+    success: true,
+    user: {
+      id: req.user.id,
+      name: req.user.name,
+      email: req.user.email,
+      isGuest: req.user.isGuest,
+    },
+  });
 });
 
 export default router;
-

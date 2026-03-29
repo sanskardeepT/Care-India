@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { User } from '../types';
 import { drAI } from '../services/geminiService';
 
@@ -8,6 +8,7 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ user }) => {
+  const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -20,9 +21,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
     setAiResponse(null);
     try {
       const res = await drAI(query);
-      setAiResponse(res || "No response received.");
-    } catch (err) {
-      setAiResponse("Sorry, I encountered an error. Please check your symptoms later.");
+      setAiResponse(res || 'No response received.');
+    } catch {
+      setAiResponse('Sorry, I encountered an error. Please check your symptoms later.');
     } finally {
       setLoading(false);
     }
@@ -49,13 +50,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
 
   return (
     <div className="space-y-8 animate-fadeIn">
-      {/* Greeting */}
       <div>
-        <h2 className="text-3xl font-bold text-gray-900 leading-tight tracking-tight capitalize">hlo, {user.name}</h2>
+        <h2 className="text-3xl font-bold text-gray-900 leading-tight tracking-tight capitalize">Hello {user.isGuest ? 'Sanskardeep' : user.name}</h2>
         <p className="text-gray-400 text-sm mt-1 font-medium">Welcome back to your health desk.</p>
       </div>
 
-      {/* Dr.AI Section */}
       <div className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm transition-all hover:shadow-md">
         <div className="flex items-center gap-2 mb-6 text-[#0066FF]">
           <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
@@ -65,7 +64,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
           </div>
           <h3 className="font-bold uppercase tracking-[0.2em] text-[10px]">Dr.AI Symptom Checker</h3>
         </div>
-        
+
         <form onSubmit={handleAISubmit} className="relative">
           <input
             type="text"
@@ -102,7 +101,6 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         )}
       </div>
 
-      {/* Emergency Alerts */}
       <div>
         <div className="flex items-center gap-2 mb-4 text-[10px] font-bold text-gray-400 tracking-[0.2em] uppercase">
            <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
@@ -130,18 +128,17 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
         </div>
       </div>
 
-      {/* Quick Actions */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-         <ActionCard title="Doctors" icon="stethoscope" color="blue" />
-         <ActionCard title="Pharmacy" icon="pill" color="emerald" />
-         <ActionCard title="Reports" icon="file" color="amber" />
-         <ActionCard title="SOS Help" icon="sos" color="red" />
+         <ActionCard title="Doctors" icon="stethoscope" color="blue" onClick={() => navigate('/directory')} />
+         <ActionCard title="Pharmacy" icon="pill" color="emerald" onClick={() => navigate('/pharmacy')} />
+         <ActionCard title="Reports" icon="file" color="amber" onClick={() => navigate('/vault')} />
+         <ActionCard title="SOS Help" icon="sos" color="red" onClick={() => navigate('/profile')} />
       </div>
     </div>
   );
 };
 
-const ActionCard = ({ title, icon, color }: { title: string; icon: string; color: string }) => {
+const ActionCard = ({ title, icon, color, onClick }: { title: string; icon: string; color: string; onClick: () => void }) => {
   const colorMap: any = {
     blue: 'bg-blue-50 text-blue-600 border-blue-100',
     emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100',
@@ -160,12 +157,12 @@ const ActionCard = ({ title, icon, color }: { title: string; icon: string; color
   }
 
   return (
-    <div className="bg-white p-6 rounded-3xl border border-gray-100 flex flex-col items-center justify-center gap-3 hover:shadow-md transition-all cursor-pointer group active:scale-95">
+    <button type="button" onClick={onClick} className="bg-white p-6 rounded-3xl border border-gray-100 flex flex-col items-center justify-center gap-3 hover:shadow-md transition-all cursor-pointer group active:scale-95">
       <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 ${colorMap[color]}`}>
         {getIcon()}
       </div>
       <span className="text-[11px] font-bold uppercase tracking-wider text-gray-600">{title}</span>
-    </div>
+    </button>
   )
 }
 

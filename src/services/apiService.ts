@@ -1,42 +1,39 @@
-const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
-const apiFetch = async (endpoint: string, options: RequestInit = {}): Promise<any> => {
+const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
   const token = localStorage.getItem('care_india_token');
-  
-  const config: RequestInit = {
+
+  const response = await fetch(`${BASE_URL}${endpoint}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
-  };
+  });
 
-  const response = await fetch(`${BASE_URL}${endpoint}`, config);
-  
+  const data = await response.json().catch(() => ({}));
+
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-    throw new Error(error.error || `HTTP ${response.status}`);
+    throw new Error(data.error || 'Something went wrong');
   }
 
-  return response.json();
+  return data;
 };
 
-// Auth API
 export const authAPI = {
-  register: (data: { name: string; email: string; password: string; phone?: string; date_of_birth?: string; gender?: string; blood_group?: string; }) =>
-    apiFetch('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
-  
-  login: (data: { email: string; password: string; }) =>
-    apiFetch('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
-  
+  register: (data: { name: string; email: string; password: string }) =>
+    apiFetch('/register', { method: 'POST', body: JSON.stringify(data) }),
+
+  login: (data: { email: string; password: string }) =>
+    apiFetch('/login', { method: 'POST', body: JSON.stringify(data) }),
+
   loginAsGuest: () =>
-    apiFetch('/auth/guest', { method: 'POST' }),
-  
+    apiFetch('/guest', { method: 'GET' }),
+
   getMe: () => apiFetch('/auth/me'),
 };
 
-// Appointments API
 export const appointmentsAPI = {
   book: (data: any) => apiFetch('/appointments', { method: 'POST', body: JSON.stringify(data) }),
   getMyAppointments: () => apiFetch('/appointments/my'),
@@ -44,9 +41,7 @@ export const appointmentsAPI = {
   cancel: (id: string) => apiFetch(`/appointments/${id}/cancel`, { method: 'PUT' }),
 };
 
-// Health API
 export const healthAPI = {
   saveRecord: (data: any) => apiFetch('/health/save', { method: 'POST', body: JSON.stringify(data) }),
   getHistory: () => apiFetch('/health/history'),
 };
-

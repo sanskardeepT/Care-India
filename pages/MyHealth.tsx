@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { User } from '../types';
 import { useNavigate } from 'react-router-dom';
@@ -13,7 +12,7 @@ const MyHealth: React.FC<MyHealthProps> = ({ user, onLogout }) => {
   const options = [
     { name: 'Personal Health Profile', icon: 'person', color: 'text-gray-700' },
     { name: 'Insurance Policy', icon: 'shield', color: 'text-gray-700', onClick: () => navigate('/insurance') },
-    { name: 'Account Settings', icon: 'settings', color: 'text-gray-700' },
+    { name: 'Account Settings', icon: 'settings', color: 'text-gray-700', onClick: () => alert('Account settings will be available soon.') },
     { name: 'Logout', icon: 'logout', color: 'text-red-500', onClick: onLogout },
   ];
 
@@ -29,7 +28,7 @@ const MyHealth: React.FC<MyHealthProps> = ({ user, onLogout }) => {
           </button>
         </div>
         <h2 className="text-2xl font-bold text-gray-900 mt-6">{user.name}</h2>
-        <p className="text-gray-400 font-semibold text-[11px] uppercase tracking-wider mt-1">{user.phone}</p>
+        <p className="text-gray-400 font-semibold text-[11px] uppercase tracking-wider mt-1">{user.phone || user.email || 'Care India User'}</p>
       </div>
 
       <div className="max-w-xl mx-auto space-y-3">

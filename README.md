@@ -1,90 +1,88 @@
-<div align="center">
+# Care India
 
-# 🏥 Care India – AI Health Intelligence Platform
+Care India is a React + TypeScript frontend with an Express + MySQL backend for authentication, guest access, appointment booking, and health record storage.
 
-AI-powered healthcare assistance web application built using React, TypeScript, and Generative AI.
+## Stack
 
-</div>
+- Frontend: React, TypeScript, Vite
+- Backend: Node.js, Express
+- Database: MySQL with `mysql2`
+- Auth: JWT + bcrypt
 
----
-
-## 🚀 Overview
-
-Care India is a modern AI-based health assistance platform that provides:
-
-- 🩺 AI Symptom Analysis (Dr.AI)
-- 💊 Generic Medicine Alternatives Finder
-- 🏥 Specialist Recommendation
-- 📊 Health Dashboard Interface
-- 🔐 Secure API-based AI Integration
-
-The application is designed with modular architecture and production-ready deployment support.
-
----
-
-## 🛠️ Tech Stack
+## Setup
 
 ### Frontend
-- React (Functional Components + Hooks)
-- TypeScript
-- Vite
-- Tailwind CSS
-- Modern ES Modules
 
-### AI Integration
-- Generative AI Model: `gemini-3-flash-preview`
-- Structured Prompt Engineering
-- JSON Schema Enforcement (for medicine lookup)
+Copy `.env.example` to `.env` and set:
 
-### Tooling & Deployment
-- Node.js
-- npm
-- Git
-- Vercel (Production Deployment)
+- `VITE_API_BASE_URL`
+- `VITE_GEMINI_API_KEY`
 
----
+Install and run:
 
-## 🧠 Core Features
+```bash
+npm install
+npm run dev
+```
 
-### 1️⃣ Dr.AI – Symptom Checker
+### Backend
 
-Provides:
-- Brief health summary
-- 3 possible causes
-- 2 recommended steps
-- Standard medical disclaimer
+Copy `backend/.env.example` to `backend/.env` and set:
 
----
+- `JWT_SECRET`
+- `DB_HOST`
+- `DB_PORT`
+- `DB_USER`
+- `DB_PASSWORD`
+- `DB_NAME`
+- `CLIENT_URL`
 
-### 2️⃣ Generic Medicine Finder
+Install and run:
 
-Returns:
-- Brand confirmation
-- 2–3 generic alternatives
-- Usage description
-- Approximate price (INR)
+```bash
+cd backend
+npm install
+npm run dev
+```
 
-Structured AI output using JSON schema validation.
+## Auth API
 
----
+- `POST /api/register`
+- `POST /api/login`
+- `GET /api/guest`
+- `GET /api/auth/me`
 
-### 3️⃣ Specialist Recommendation
+## Database
 
-Analyzes symptoms and suggests the most relevant medical specialist category.
+The backend auto-creates:
 
----
-React Frontend
-↓
-AI Service Layer (geminiService.ts)
-↓
-Generative AI Model API
+- `users`
+- `appointments`
+- `health_records`
+- `guest_sessions`
 
+`users` table:
 
-Environment variables securely manage API access.
+```sql
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100),
+  email VARCHAR(100) UNIQUE,
+  password VARCHAR(255)
+);
+```
 
- 📁 Project Structure
+## Verification
 
+Frontend production build:
 
+```bash
+npm run build
+```
 
-## 🏗️ Architecture
+Backend syntax check:
 
+```bash
+cd backend
+npm run check
+```

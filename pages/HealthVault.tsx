@@ -11,6 +11,32 @@ const HealthVault: React.FC<HealthVaultProps> = ({ user }) => {
     { id: '1', title: 'Annual Health Check', provider: 'Dr. Lal PathLabs', date: '12 Dec 2024', status: 'Verified' },
     { id: '2', title: 'CBC & Vitamin D', provider: 'Thyrocare', date: '05 Nov 2024', status: 'Verified' },
   ];
+  const abhaId = '91-2342-9901';
+
+  const handleCopyAbha = async () => {
+    try {
+      await navigator.clipboard.writeText(abhaId);
+      alert('ABHA ID copied');
+    } catch {
+      alert('Unable to copy ABHA ID');
+    }
+  };
+
+  const handleDownloadSummary = () => {
+    const summary = [
+      `Patient: ${user.name}`,
+      `ABHA ID: ${abhaId}`,
+      '',
+      ...records.map((record) => `${record.title} | ${record.provider} | ${record.date} | ${record.status}`),
+    ].join('\n');
+    const blob = new Blob([summary], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'care-india-health-summary.txt';
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="space-y-10 animate-fadeIn">
@@ -19,7 +45,7 @@ const HealthVault: React.FC<HealthVaultProps> = ({ user }) => {
          <div className="relative z-10 flex flex-col h-full justify-between gap-12">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60 mb-1">Digital Health Account</p>
-              <h2 className="text-4xl font-bold tracking-tight">91-2342-9901</h2>
+              <h2 className="text-4xl font-bold tracking-tight">{abhaId}</h2>
               <p className="text-[10px] font-bold mt-1 text-white/50 tracking-widest uppercase">ABHA ID</p>
             </div>
             
@@ -36,6 +62,15 @@ const HealthVault: React.FC<HealthVaultProps> = ({ user }) => {
          {/* Decorative backgrounds */}
          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
          <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-400 rounded-full blur-2xl -ml-16 -mb-16 opacity-50"></div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <button type="button" onClick={handleCopyAbha} className="bg-white p-4 rounded-2xl border border-gray-100 text-sm font-semibold text-gray-700 shadow-sm hover:border-blue-100 transition-all">
+          Copy ABHA ID
+        </button>
+        <button type="button" onClick={handleDownloadSummary} className="bg-white p-4 rounded-2xl border border-gray-100 text-sm font-semibold text-gray-700 shadow-sm hover:border-blue-100 transition-all">
+          Download Health Summary
+        </button>
       </div>
 
       {/* Records List */}

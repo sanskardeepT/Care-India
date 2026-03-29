@@ -1,9 +1,11 @@
-
 export interface User {
+  id?: number | null;
   name: string;
-  phone: string;
-  isGuest: boolean;
-  avatar: string;
+  email?: string;
+  phone?: string;
+  isGuest?: boolean;
+  avatar?: string;
+  token?: string;
 }
 
 export interface MedicalRecord {

@@ -6,7 +6,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
-    "start": "node index.js"
+    "start": "node index.js",
+    "check": "node --check index.js"
   },
   "keywords": ["healthcare", "api", "express"],
   "author": "Sanskardeep",

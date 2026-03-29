@@ -1,55 +1,93 @@
 import jwt from 'jsonwebtoken';
 import pool from '../db/connection.js';
 
+const getToken = (req) => req.header('Authorization')?.replace('Bearer ', '').trim() || '';
+
+const findGuestSession = async (token) => {
+  if (!token) {
+    return null;
+  }
+
+  const [rows] = await pool.execute('SELECT session_token FROM guest_sessions WHERE session_token = ?', [token]);
+  return rows[0] || null;
+};
+
+const findUserById = async (id) => {
+  const [rows] = await pool.execute('SELECT id, name, email FROM users WHERE id = ?', [id]);
+  return rows[0] || null;
+};
+
 export const authMiddleware = async (req, res, next) => {
   try {
-    const token = req.header('Authorization')?.replace('Bearer ', '') || req.cookies.token;
-    
+    const token = getToken(req);
+
     if (!token) {
-      return res.status(401).json({ error: 'No token provided' });
+      return res.status(401).json({ success: false, error: 'Authentication required' });
+    }
+
+    const guestSession = await findGuestSession(token);
+    if (guestSession) {
+      req.user = {
+        id: null,
+        name: 'Sanskardeep',
+        email: 'guest@care-india.com',
+        isGuest: true,
+        token,
+      };
+      return next();
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const [rows] = await pool.execute('SELECT * FROM users WHERE id = ? AND deleted_at IS NULL', [decoded.id]);
-    
-    if (rows.length === 0) {
-      return res.status(401).json({ error: 'Invalid token' });
+    const user = await findUserById(decoded.id);
+
+    if (!user) {
+      return res.status(401).json({ success: false, error: 'Invalid token' });
     }
 
-    req.user = rows[0];
+    req.user = {
+      ...user,
+      isGuest: false,
+      token,
+    };
     next();
-  } catch (error) {
-    res.status(401).json({ error: 'Invalid token' });
+  } catch {
+    res.status(401).json({ success: false, error: 'Invalid token' });
   }
 };
 
-export const optionalAuth = async (req, res, next) => {
+export const optionalAuth = async (req, _res, next) => {
   try {
-    const token = req.header('Authorization')?.replace('Bearer ', '') || req.cookies.token;
-    
-    if (token) {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const [rows] = await pool.execute('SELECT * FROM users WHERE id = ? AND deleted_at IS NULL', [decoded.id]);
-      
-      if (rows.length > 0) {
-        req.user = rows[0];
-      }
+    const token = getToken(req);
+
+    if (!token) {
+      return next();
     }
-    
-    // For guests, create/check session token
-    if (!req.user) {
-      const sessionToken = req.header('X-Session-Token');
-      if (sessionToken) {
-        const [rows] = await pool.execute('SELECT * FROM guest_sessions WHERE session_token = ?', [sessionToken]);
-        if (rows.length > 0) {
-          req.user = { id: null, name: 'Sanskardeep', email: 'guest@care-india.com', isGuest: true };
-        }
-      }
+
+    const guestSession = await findGuestSession(token);
+    if (guestSession) {
+      req.user = {
+        id: null,
+        name: 'Sanskardeep',
+        email: 'guest@care-india.com',
+        isGuest: true,
+        token,
+      };
+      return next();
     }
-    
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await findUserById(decoded.id);
+
+    if (user) {
+      req.user = {
+        ...user,
+        isGuest: false,
+        token,
+      };
+    }
+
     next();
-  } catch (error) {
-    next(); // Continue without user
+  } catch {
+    next();
   }
 };
-

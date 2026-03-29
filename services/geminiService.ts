@@ -5,6 +5,60 @@ const getAI = () =>
     apiKey: import.meta.env.VITE_GEMINI_API_KEY,
   });
 
+const medicineFallbacks: Record<string, { brand: string; generics: Array<{ name: string; usage: string; approxPriceINR?: number }> }> = {
+  lipitor: {
+    brand: 'Lipitor',
+    generics: [
+      { name: 'Atorvastatin 10mg', usage: 'Used to help manage cholesterol levels.', approxPriceINR: 120 },
+      { name: 'Atorvastatin 20mg', usage: 'Used when a stronger cholesterol-lowering dose is needed.', approxPriceINR: 180 },
+    ],
+  },
+  crocin: {
+    brand: 'Crocin',
+    generics: [
+      { name: 'Paracetamol 500mg', usage: 'Used for fever and mild pain relief.', approxPriceINR: 20 },
+      { name: 'Acetaminophen 650mg', usage: 'Used for fever and body ache relief.', approxPriceINR: 35 },
+    ],
+  },
+  dolo: {
+    brand: 'Dolo',
+    generics: [
+      { name: 'Paracetamol 650mg', usage: 'Used for fever and mild to moderate pain.', approxPriceINR: 30 },
+      { name: 'Paracetamol 500mg', usage: 'Used for common fever and headache relief.', approxPriceINR: 20 },
+    ],
+  },
+  augmentin: {
+    brand: 'Augmentin',
+    generics: [
+      { name: 'Amoxicillin + Clavulanate', usage: 'Common antibiotic combination used only on a doctor’s advice.', approxPriceINR: 180 },
+      { name: 'Co-amoxiclav', usage: 'Antibiotic alternative from the same generic combination.', approxPriceINR: 210 },
+    ],
+  },
+};
+
+const buildMedicineFallback = (brandName: string) => {
+  const normalized = brandName.trim().toLowerCase();
+  const direct = medicineFallbacks[normalized];
+
+  if (direct) {
+    return direct;
+  }
+
+  return {
+    brand: brandName,
+    generics: [
+      {
+        name: `${brandName} generic equivalent`,
+        usage: 'Ask a licensed pharmacist for the exact salt composition and equivalent generic option.',
+      },
+      {
+        name: 'Pharmacist consultation recommended',
+        usage: 'Use the medicine strip or prescription to confirm the active ingredient before purchase.',
+      },
+    ],
+  };
+};
+
 export const drAI = async (symptoms: string): Promise<string> => {
   try {
     const ai = getAI();
@@ -30,7 +84,21 @@ Response Format:
     );
   } catch (error) {
     console.error("Dr.AI Service Error:", error);
-    return "I'm currently offline. Please check back in a few minutes.";
+    return [
+      'Brief Summary',
+      'I could not reach the live AI service right now.',
+      '',
+      'Potential Causes',
+      '- Viral infection',
+      '- Dehydration or fatigue',
+      '- Stress-related symptoms',
+      '',
+      'Recommended Steps',
+      '- Rest, hydrate, and monitor your symptoms.',
+      '- Seek medical help if symptoms worsen or persist.',
+      '',
+      'Disclaimer: AI advice only, consult a doctor.',
+    ].join('\n');
   }
 };
 
@@ -72,7 +140,7 @@ export const findGenericMedicine = async (
     return JSON.parse(response.text.trim());
   } catch (error) {
     console.error("Pharmacy AI Error:", error);
-    throw new Error("Medicine not found in our AI database.");
+    return buildMedicineFallback(brandName);
   }
 };
 
