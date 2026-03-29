@@ -2,7 +2,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 
 const getAI = () =>
   new GoogleGenAI({
-    apiKey: import.meta.env.VITE_GEMINI_API_KEY,
+    apiKey: import.meta.env.VITE_GEMINI_API_KEY?.trim(),
   });
 
 const medicineFallbacks: Record<string, { brand: string; generics: Array<{ name: string; usage: string; approxPriceINR?: number }> }> = {
