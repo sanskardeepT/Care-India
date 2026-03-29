@@ -1,16 +1,34 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+const isLocalEnvironment =
+  typeof window !== 'undefined' &&
+  ['localhost', '127.0.0.1'].includes(window.location.hostname);
+const BASE_URL = configuredBaseUrl
+  ? configuredBaseUrl.replace(/\/$/, '')
+  : isLocalEnvironment
+    ? 'http://localhost:5000/api'
+    : '';
 
 const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
+  if (!BASE_URL) {
+    throw new Error('Backend is not configured. Set VITE_API_BASE_URL to your deployed API URL.');
+  }
+
   const token = localStorage.getItem('care_india_token');
 
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
-    },
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(`${BASE_URL}${endpoint}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options.headers,
+      },
+    });
+  } catch {
+    throw new Error('Unable to reach the server. Check VITE_API_BASE_URL and backend deployment.');
+  }
 
   const data = await response.json().catch(() => ({}));
 

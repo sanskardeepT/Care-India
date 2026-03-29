@@ -52,6 +52,36 @@ npm run dev
 - `GET /api/guest`
 - `GET /api/auth/me`
 
+## Deployment
+
+### Vercel Frontend
+
+Set these environment variables in Vercel:
+
+- `VITE_API_BASE_URL=https://your-backend-domain/api`
+- `VITE_GEMINI_API_KEY=your_gemini_api_key`
+
+Do not leave `VITE_API_BASE_URL` pointed at `localhost` in production.
+
+### Backend Host
+
+Deploy the `backend` folder to a Node.js host such as Render or Railway and set:
+
+- `PORT=5000`
+- `CLIENT_URL=https://your-vercel-app.vercel.app`
+- `JWT_SECRET`
+- `DB_HOST`
+- `DB_PORT`
+- `DB_USER`
+- `DB_PASSWORD`
+- `DB_NAME`
+
+`CLIENT_URL` also supports multiple comma-separated origins for local + production, for example:
+
+```env
+CLIENT_URL=http://localhost:5173,https://your-vercel-app.vercel.app
+```
+
 ## Database
 
 The backend auto-creates:
