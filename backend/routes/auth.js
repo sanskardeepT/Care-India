@@ -132,4 +132,31 @@ router.get('/me', authMiddleware, async (req, res) => {
   });
 });
 
+router.get('/admin/users', async (_req, res) => {
+  try {
+    const [rows] = await pool.execute('SELECT id, name, email FROM users ORDER BY id DESC');
+
+    res.json({
+      success: true,
+      count: rows.length,
+      users: rows,
+    });
+  } catch {
+    res.status(500).json({ success: false, error: 'Failed to fetch users' });
+  }
+});
+
+router.get('/admin/users/count', async (_req, res) => {
+  try {
+    const [rows] = await pool.execute('SELECT COUNT(*) AS totalUsers FROM users');
+
+    res.json({
+      success: true,
+      count: rows[0]?.totalUsers || 0,
+    });
+  } catch {
+    res.status(500).json({ success: false, error: 'Failed to fetch user count' });
+  }
+});
+
 export default router;
