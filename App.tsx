@@ -36,7 +36,7 @@ const ProtectedRoutes = () => {
             </Routes>
             <footer className="mt-12 text-center text-xs text-gray-400 py-6 border-t border-gray-100 space-y-1">
               <p>Developer: Sanskardeep Talikote</p>
-              <p>Contact: 9403910943 | sanskardeepbtalikote19@gail.com</p>
+              <p>Contact: 9403910943 | sanskardeepbtalikote19@gmail.com</p>
             </footer>
           </div>
         </main>
