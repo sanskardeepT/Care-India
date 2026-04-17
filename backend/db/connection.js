@@ -14,7 +14,11 @@ const pool = mysql.createPool({
   queueLimit: 0,
 });
 
-export const initializeDatabase = async () => {
+let isDatabaseReady = false;
+
+export const getDatabaseStatus = () => isDatabaseReady;
+
+const createTables = async () => {
   await pool.execute(`
     CREATE TABLE IF NOT EXISTS users (
       id INT AUTO_INCREMENT PRIMARY KEY,
@@ -67,6 +71,27 @@ export const initializeDatabase = async () => {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
+};
+
+export const initializeDatabase = async () => {
+  await pool.query('SELECT 1');
+  await createTables();
+  isDatabaseReady = true;
+};
+
+export const initializeDatabaseWithRetry = (retryDelayMs = 15000) => {
+  const attemptInitialization = async () => {
+    try {
+      await initializeDatabase();
+      console.log('Database connected and initialized successfully.');
+    } catch (error) {
+      isDatabaseReady = false;
+      console.error('Database initialization failed. Retrying...', error.message);
+      setTimeout(attemptInitialization, retryDelayMs);
+    }
+  };
+
+  void attemptInitialization();
 };
 
 export default pool;

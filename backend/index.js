@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { initializeDatabase } from './db/connection.js';
+import { getDatabaseStatus, initializeDatabaseWithRetry } from './db/connection.js';
 import authRoutes from './routes/auth.js';
 import appointmentRoutes from './routes/appointments.js';
 import healthRoutes from './routes/health.js';
@@ -35,6 +35,24 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+app.get('/', (_req, res) => {
+  res.json({
+    success: true,
+    service: 'care-india-backend',
+    databaseReady: getDatabaseStatus(),
+  });
+});
+
+app.get('/api/status', (_req, res) => {
+  const databaseReady = getDatabaseStatus();
+
+  res.status(databaseReady ? 200 : 503).json({
+    success: databaseReady,
+    service: 'care-india-backend',
+    databaseReady,
+  });
+});
+
 app.use('/api', authRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/appointments', appointmentRoutes);
@@ -48,15 +66,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-initializeDatabase()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
-    });
-  })
-  .catch((error) => {
-    console.error('Database setup error:', error);
-    process.exit(1);
-  });
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  initializeDatabaseWithRetry();
+});
 
 export default app;
