@@ -1,18 +1,60 @@
 import React, { useState } from 'react';
 import { useAuth } from '../src/context/AuthContext';
 
+type Mode = 'login' | 'register';
+
 const Login: React.FC = () => {
-  const { loginAsGuest } = useAuth();
+  const { login, register, loginAsGuest } = useAuth();
+  const [mode, setMode] = useState<Mode>('login');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const handleGuestLogin = async () => {
     try {
       setError('');
+      setSuccess('');
       setLoading(true);
       await loginAsGuest();
     } catch (loginError) {
       setError(loginError instanceof Error ? loginError.message : 'Guest login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setError('');
+    setSuccess('');
+
+    if (!email.trim() || !password.trim() || (mode === 'register' && !name.trim())) {
+      setError(mode === 'register' ? 'Name, email and password are required' : 'Email and password are required');
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      if (mode === 'login') {
+        await login(email.trim(), password.trim());
+      } else {
+        const message = await register({
+          name: name.trim(),
+          email: email.trim(),
+          password: password.trim(),
+        });
+        setMode('login');
+        setName('');
+        setPassword('');
+        setSuccess(message);
+      }
+    } catch (authError) {
+      setError(authError instanceof Error ? authError.message : 'Authentication failed');
     } finally {
       setLoading(false);
     }
@@ -30,32 +72,118 @@ const Login: React.FC = () => {
           <span className="text-3xl font-bold text-gray-800 tracking-tight">Care India</span>
         </div>
 
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Guest Access</h2>
-        <p className="text-gray-500 mb-8 text-sm leading-relaxed">
-          This app now works without a backend. Continue as guest to use the dashboard, AI tools, and local booking flow.
-        </p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h2>
+        <p className="text-gray-500 mb-8 text-sm">Your personalized health desk is just a login away.</p>
 
-        <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 text-sm text-blue-900">
-          Login, registration, and database-based user storage have been removed for this deployment.
+        <div className="bg-gray-50 rounded-2xl p-1 mb-6 flex">
+          <button
+            type="button"
+            onClick={() => {
+              setMode('login');
+              setError('');
+              setSuccess('');
+            }}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+              mode === 'login' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+            }`}
+          >
+            Sign In
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setMode('register');
+              setError('');
+              setSuccess('');
+            }}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+              mode === 'register' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
+            }`}
+          >
+            Create Account
+          </button>
         </div>
 
-        {error ? (
-          <div className="mt-4 text-sm text-red-500 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
-            {error}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {mode === 'register' ? (
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Full Name</label>
+              <input
+                type="text"
+                required
+                placeholder="Sanskardeep Talikote"
+                className="w-full px-4 py-3 rounded-xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-[#0066FF] transition-all"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+          ) : null}
+
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Email</label>
+            <input
+              type="email"
+              required
+              placeholder="sanskardeep@gmail.com"
+              className="w-full px-4 py-3 rounded-xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-[#0066FF] transition-all"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
-        ) : null}
+
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Password</label>
+            <input
+              type="password"
+              required
+              placeholder="CareIndia@123"
+              className="w-full px-4 py-3 rounded-xl border border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-[#0066FF] transition-all"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <p className="mt-2 text-[11px] text-gray-400">
+              Recommended: 8+ characters with letters, numbers, and one special character.
+            </p>
+          </div>
+
+          {error ? (
+            <div className="text-sm text-red-500 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+              {error}
+            </div>
+          ) : null}
+
+          {success ? (
+            <div className="text-sm text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3">
+              {success}
+            </div>
+          ) : null}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-[#0066FF] text-white py-3.5 rounded-xl font-semibold shadow-lg shadow-blue-200 hover:bg-blue-600 active:scale-[0.98] transition-all disabled:opacity-60"
+          >
+            {loading ? 'Please wait...' : mode === 'login' ? 'Sign In' : 'Create Account'}
+          </button>
+        </form>
+
+        <div className="mt-8 flex items-center gap-4">
+          <div className="flex-1 h-px bg-gray-100"></div>
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Or</span>
+          <div className="flex-1 h-px bg-gray-100"></div>
+        </div>
 
         <button
           type="button"
           onClick={() => void handleGuestLogin()}
           disabled={loading}
-          className="w-full mt-8 bg-[#0066FF] text-white py-3.5 rounded-xl font-semibold shadow-lg shadow-blue-200 hover:bg-blue-600 active:scale-[0.98] transition-all disabled:opacity-60"
+          className="w-full mt-8 py-3 rounded-xl font-medium text-gray-600 hover:bg-gray-50 active:scale-[0.98] transition-all border border-gray-100 disabled:opacity-60"
         >
-          {loading ? 'Opening Care India...' : 'Continue as Guest'}
+          Login as Guest
         </button>
 
         <p className="mt-8 text-center text-[11px] text-gray-400 leading-relaxed">
-          Your guest session is stored only in this browser and can be cleared by logging out.
+          Accounts are stored only in this browser. No backend database is being used.
         </p>
       </div>
     </div>
