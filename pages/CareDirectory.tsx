@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Hospital } from '../types';
-import { appointmentsAPI } from '../src/services/apiService';
 import { useAuth } from '../src/context/AuthContext';
 
 const CareDirectory: React.FC = () => {
@@ -30,6 +29,19 @@ const CareDirectory: React.FC = () => {
 
   const visibleItems = hospitals.filter((item) => item.type === (activeTab === 'Hospitals' ? 'Hospital' : 'Doctor'));
 
+  const saveAppointmentLocally = (appointment: Record<string, string>) => {
+    const storageKey = 'care_india_guest_appointments';
+    const savedAppointments = localStorage.getItem(storageKey);
+    const appointments = savedAppointments ? JSON.parse(savedAppointments) : [];
+    appointments.unshift({
+      id: Date.now().toString(),
+      ...appointment,
+      status: 'Pending',
+      created_at: new Date().toISOString(),
+    });
+    localStorage.setItem(storageKey, JSON.stringify(appointments));
+  };
+
   const handleOpenBooking = (item: Hospital) => {
     setBookingId(item.id);
     setBookingError('');
@@ -54,7 +66,7 @@ const CareDirectory: React.FC = () => {
     try {
       setBookingLoading(true);
       setBookingError('');
-      await appointmentsAPI.book({
+      saveAppointmentLocally({
         hospital_name: item.name,
         hospital_address: item.location,
         department: bookingForm.department,
@@ -66,10 +78,10 @@ const CareDirectory: React.FC = () => {
         user_email: bookingForm.user_email,
         user_phone: bookingForm.user_phone,
       });
-      setBookingSuccess('Appointment booked successfully.');
+      setBookingSuccess('Appointment saved on this device. No backend is required now.');
       setBookingId(null);
     } catch (error) {
-      setBookingError(error instanceof Error ? error.message : 'Failed to book appointment');
+      setBookingError(error instanceof Error ? error.message : 'Failed to save appointment');
     } finally {
       setBookingLoading(false);
     }
