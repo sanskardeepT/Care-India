@@ -102,6 +102,57 @@ CREATE TABLE users (
 );
 ```
 
+## ER Diagram
+
+```mermaid
+erDiagram
+    USERS {
+        INT id PK
+        VARCHAR name
+        VARCHAR email UK
+        VARCHAR password
+    }
+
+    APPOINTMENTS {
+        INT id PK
+        INT user_id FK
+        VARCHAR user_name
+        VARCHAR user_email
+        VARCHAR user_phone
+        VARCHAR hospital_name
+        TEXT hospital_address
+        VARCHAR department
+        VARCHAR doctor_name
+        DATE appointment_date
+        VARCHAR appointment_time
+        TEXT reason
+        ENUM status
+        TIMESTAMP created_at
+    }
+
+    HEALTH_RECORDS {
+        INT id PK
+        INT user_id FK
+        ENUM record_type
+        TEXT input_data
+        TEXT ai_response
+        TEXT symptoms
+        TEXT possible_causes
+        TEXT recommended_steps
+        VARCHAR specialist_suggested
+        TIMESTAMP created_at
+    }
+
+    GUEST_SESSIONS {
+        INT id PK
+        VARCHAR session_token UK
+        TIMESTAMP created_at
+    }
+
+    USERS ||--o{ APPOINTMENTS : books
+    USERS ||--o{ HEALTH_RECORDS : creates
+```
+
 ## Verification
 
 Frontend production build:

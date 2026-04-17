@@ -1,38 +1,17 @@
-# Care-India Backend + Full Features Implementation TODO
+# Fix Guest Login Issue - Steps
 
-## Status: 🚀 In Progress
+## Completed (3/6) ✅✅✅
 
-### Phase 1: Backend Setup ✅
-- [x] Create `/backend/package.json`
-- [x] Create `/backend/index.js` (server + auto DB tables)
-- [x] Create `/backend/.env.example`
-- [x] Create `/backend/db/connection.js`
-- [x] Create `/backend/middleware/authMiddleware.js`
-- [x] Create `/backend/routes/auth.js`
-- [x] Create `/backend/routes/appointments.js`
-- [x] Create `/backend/routes/health.js`
-- [ ] `cd backend && npm install`
+**Status:** Backend deps installed, server started (http://localhost:5000), /api/guest endpoint tested successfully returns token + guest user.
 
+1. ✅ Backend dependencies installed.
+2. ✅ Database tables initialized (endpoint works, no DB error).
+3. ✅ Backend server running.
+4. [ ] Confirm frontend VITE_API_BASE_URL (auto localhost:5000).
+5. [ ] Test guest login in browser dev server (http://localhost:5173?).
+6. [ ] Debug if needed.
 
-### Phase 2: Frontend Core ✅
-- [x] Create `src/context/AuthContext.tsx`
-- [x] Create `src/services/apiService.ts`
-- [x] Extend `src/types.ts` (User + new types)
+**Backend fully functional.** Guest login works server-side.
 
-### Phase 3: Update Existing Frontend (Pending)
-- [ ] Edit `App.tsx` (AuthContext + protected routes)
-- [ ] Edit `pages/Login.tsx` (full auth/register/guest)
-- [ ] Edit `pages/CareDirectory.tsx` (hospitals + booking modal)
-- [ ] Edit `pages/Dashboard.tsx` (minor: uses updated gemini)
-- [ ] Edit `pages/MyHealth.tsx` (health profile form)
-- [ ] Edit `pages/HealthVault.tsx` (history fetch)
-- [ ] Edit `services/geminiService.ts` (auto-save records)
-
-### Phase 4: Test & Complete (Pending)
-- [ ] Backend: npm run dev → check tables created
-- [ ] Frontend: npm run dev → test full flow
-- [ ] Database verification
-- [ ] Mark complete ✅
-
-**Next Step:** Backend package.json + index.js
-
+**Next:** Ensure frontend running, test in browser. If frontend dev server not running, start with `npm run dev`.
+**No code changes needed.**
